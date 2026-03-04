@@ -1,13 +1,26 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "flask",
   "buildCommand": "npm run build:vercel",
   "functions": {
-    "server.py": {
+    "api/index.py": {
+      "runtime": "python3.11",
       "memory": 1024,
       "maxDuration": 300
     }
   },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "api/index.py"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
   "env": {
     "INSTAGRAB_AUTH_MODE": "none",
     "DISABLE_MP3": "1"
