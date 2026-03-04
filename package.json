@@ -1,0 +1,22 @@
+{
+  "name": "instagrab",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n backend,frontend -c green,cyan \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "bash backend/run_backend.sh",
+    "dev:frontend": "npm run dev --workspace frontend",
+    "build": "npm run build --workspace frontend",
+    "build:vercel": "npm run build && rm -rf public && mkdir -p public && cp -R frontend/dist/. public/",
+    "preview": "npm run preview --workspace frontend",
+    "start:dev": "bash backend/run_backend.sh",
+    "start": "bash backend/run_backend_prod.sh",
+    "vercel-build": "npm run build:vercel"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply min-h-screen bg-page-mist text-slate-100 antialiased;
+}
+
+#root {
+  @apply min-h-screen;
+}
+
+.card {
+  @apply rounded-2xl border border-white/10 bg-ink-900/90 shadow-card backdrop-blur;
+}
+
+.grad-text {
+  @apply bg-ig-gradient bg-clip-text text-transparent;
+}
+
+.focus-ring {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-pink/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950;
+}
