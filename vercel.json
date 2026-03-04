@@ -1,12 +1,9 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm install && npm run build",
-  "outputDirectory": "dist",
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/dist",
   "functions": {
     "api/index.py": {
-      "runtime": "python3.11",
-      "memory": 1024,
-      "maxDuration": 300
+      "runtime": "python3.11"
     }
   },
   "routes": [
@@ -15,15 +12,8 @@
       "dest": "api/index.py"
     },
     {
-      "handle": "filesystem"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/frontend/dist/index.html"
     }
-  ],
-  "env": {
-    "INSTAGRAB_AUTH_MODE": "none",
-    "DISABLE_MP3": "1"
-  }
+  ]
 }
