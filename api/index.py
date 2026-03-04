@@ -1,3 +1,5 @@
-from backend.server import app as flask_app
+from backend.server import app
 
-app = flask_app
+# Vercel requires the variable name "app"
+# so we expose the Flask instance
+app = app
