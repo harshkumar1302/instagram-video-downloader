@@ -41,6 +41,7 @@ IMAGE_FETCH_TIMEOUT_SECONDS = int(os.getenv("IMAGE_FETCH_TIMEOUT_SECONDS", "8"))
 IMAGE_CANDIDATE_LIMIT = int(os.getenv("IMAGE_CANDIDATE_LIMIT", "6"))
 IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "webp", "heic", "heif", "avif"}
 NON_RECOVERABLE_IMAGE_CODES = {"INVALID_ITEM_INDEX", "AUTH_REQUIRED", "TIMEOUT", "YTDLP_NOT_FOUND"}
+IMAGE_STRICT_FATAL_CODES = {"INVALID_ITEM_INDEX"}
 
 ALLOWED_INSTAGRAM_PATHS = {"p", "reel", "reels", "stories", "tv"}
 TARGET_MODES = {"photo", "reel", "story", "igtv", "carousel"}
@@ -729,7 +730,8 @@ def download_thumbnail_image(source_url: str, download_dir: Path, item_index: in
         raw = selected
         candidates.extend(collect_image_urls_from_payload(selected, limit=candidate_limit))
     except ApiException as exc:
-        if exc.code in NON_RECOVERABLE_IMAGE_CODES:
+        # Keep URL-only fallbacks available even when yt-dlp says auth/cookies are needed.
+        if exc.code in IMAGE_STRICT_FATAL_CODES:
             raise
         raw = {}
 
@@ -983,12 +985,13 @@ def resolve_image_file(source_url: str, download_dir: Path, item_index: int | No
         try:
             return downloader(source_url, download_dir, item_index=item_index)
         except ApiException as exc:
-            if exc.code in NON_RECOVERABLE_IMAGE_CODES:
+            # Only item index mismatch is truly fatal for image resolution fallback chain.
+            if exc.code in IMAGE_STRICT_FATAL_CODES:
                 raise
             last_error = exc
             continue
 
-    if last_error and last_error.code in {"INVALID_ITEM_INDEX", "AUTH_REQUIRED", "TIMEOUT", "YTDLP_NOT_FOUND"}:
+    if last_error:
         raise ApiException(last_error.message, last_error.code, last_error.status)
 
     raise ApiException("Unable to resolve image URL from this post.", "IMAGE_NOT_AVAILABLE", 404)
