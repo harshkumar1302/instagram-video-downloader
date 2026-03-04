@@ -1,0 +1,7 @@
+[project]
+name = "instagrab"
+version = "1.0.0"
+requires-python = ">=3.10"
+
+[project.scripts]
+app = "backend.server:app"
