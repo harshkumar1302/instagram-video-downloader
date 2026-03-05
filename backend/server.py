@@ -163,7 +163,7 @@ def filter_items_for_mode(items: list[dict[str, Any]], mode: str | None) -> list
         return items
 
     if mode == "carousel":
-        if len(items) < 2:
+        if len(items) <= 1:
             raise ApiException("Selected mode 'carousel' requires a multi-item post.", "TYPE_MISMATCH", 422)
         return items
 
@@ -310,6 +310,7 @@ def resolve_yt_dlp_command() -> list[str]:
 def run_yt_dlp(args: list[str], timeout_seconds: int, failure_code: str, failure_message: str) -> str:
     command = [*resolve_yt_dlp_command(), *args]
     try:
+        # We enforce timeout via Python's subprocess.run, not via yt-dlp arguments since --timeout is not standard
         result = subprocess.run(command, capture_output=True, text=True, timeout=timeout_seconds)
     except subprocess.TimeoutExpired as exc:
         raise ApiException(
@@ -365,10 +366,15 @@ def pick_entry_by_index(entries: list[dict[str, Any]], item_index: int | None) -
 def build_browser_headers(referer: str | None = None, accept: str | None = None) -> dict[str, str]:
     headers: dict[str, str] = {
         "User-Agent": (
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0 Safari/537.36"
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
         ),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
         "Accept-Language": "en-US,en;q=0.9",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-User": "?1",
+        "Sec-Fetch-Dest": "document",
     }
     if accept:
         headers["Accept"] = accept
@@ -616,9 +622,11 @@ def download_image_from_url(image_url: str, source_url: str) -> tuple[bytes, str
         image_url,
         headers=build_browser_headers(
             referer=source_url,
-            accept="image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
         ),
     )
+    request.add_header("Sec-Fetch-Dest", "image")
+    request.add_header("Sec-Fetch-Mode", "no-cors")
+    request.add_header("Sec-Fetch-Site", "cross-site")
 
     try:
         with urlopen(request, timeout=IMAGE_FETCH_TIMEOUT_SECONDS) as response:
