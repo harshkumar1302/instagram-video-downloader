@@ -20,7 +20,7 @@ fi
 VENV_PY="$VENV_DIR/bin/python"
 export PATH="$VENV_DIR/bin:$PATH"
 
-for bin_dir in /opt/homebrew/bin /usr/local/bin; do
+for bin_dir in /opt/homebrew/bin /usr/local/bin "$ROOT_DIR/ffmpeg_bin"; do
   if [[ -d "$bin_dir" ]]; then
     export PATH="$bin_dir:$PATH"
   fi
