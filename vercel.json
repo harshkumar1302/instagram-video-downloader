@@ -4,7 +4,7 @@
     "rewrites": [
         {
             "source": "/api/(.*)",
-            "destination": "https://YOUR_BACKEND_URL_HERE.onrender.com/api/$1"
+            "destination": "https://instagram-video-downloader-rpn7.onrender.com/api/$1"
         },
         {
             "source": "/(.*)",
